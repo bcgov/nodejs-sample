@@ -81,7 +81,7 @@ jobs:
           broker_jwt: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           intention_path: intention.json
           quickstart: true
-      - name: Set intention ID for build job
+      - name: Echo intention ID for deploy job
         id: set-intention-id
         run: |
           echo "intention_id=${INTENTION_ID}" >> $GITHUB_OUTPUT
@@ -93,8 +93,8 @@ jobs:
         run: npm run build --if-present
       - name: Push build
         run: |
-          oras push ghcr.io/${{ github.repository_owner }}/${{ github.repository}}:${PROJECT_VERSION} dist
-          MANIFEST=$(oras manifest fetch ghcr.io/${{ github.repository_owner }}/${{ github.repository}}:${PROJECT_VERSION})
+          oras push ghcr.io/${{ github.repository}}:${PROJECT_VERSION} dist
+          MANIFEST=$(oras manifest fetch ghcr.io/${{ github.repository}}:${PROJECT_VERSION})
           echo "artifact_sha256=$(echo $MANIFEST | jq -r '.layers[0].digest')" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
