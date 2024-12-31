@@ -10,15 +10,15 @@
       "id": "build",
       "provision": [],
       "service": {
-        "project": "hello",
-        "name": "vvsddsv",
+        "project": "nodejs-sample",
+        "name": "nodejs-sample",
         "environment": "tools"
       },
       "package": {
         "version": "",
         "buildVersion": "",
         "buildNumber": 0,
-        "name": "vvsddsv",
+        "name": "nodejs-sample",
         "type": "application/vnd.oci.image.layer.v1.tar"
       }
     }

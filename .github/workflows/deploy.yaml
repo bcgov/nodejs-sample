@@ -13,9 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVICE_PROJECT: hello
-  SERVICE_NAME: vvsddsv
-  JOB: buildByToken/buildWithParameters?job=hello/vvsddsv
+  SERVICE_PROJECT: nodejs-sample
+  SERVICE_NAME: nodejs-sample
+  JOB: buildByToken/buildWithParameters?job=nodejs-sample/nodejs-sample
   URL: https://cd.io.nrs.gov.bc.ca
   PACKAGE_REPO: https://maven.pkg.github.com/
 
@@ -23,7 +23,7 @@ jobs:
   check_token_expiration:
     uses: ./.github/workflows/check-token.yaml
     secrets:
-      token: ${{ secrets.BROKER_JWT }}
+      token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
   deploy-build:
     name: Deploy development version
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
@@ -60,7 +60,7 @@ jobs:
           echo "artifact_sha256=${artifact_checksum#sha256:}" >> $GITHUB_OUTPUT
         env:
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
-          BROKER_JWT: ${{ secrets.BROKER_JWT }}
+          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
           GITHUB_SHA: ${{ github.sha }}
@@ -80,9 +80,9 @@ jobs:
         id: set-download-url
         run: |
           sudo apt-get -qq install libxml2-utils
-          GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout --file ./pom.xml)
+          GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout --file pom.xml)
           GROUP_ID_PATH="${GROUP_ID//.//}"
-          PACKAGE_TYPE=$(mvn help:evaluate -Dexpression=project.packaging -q -DforceStdout --file ./pom.xml)
+          PACKAGE_TYPE=$(mvn help:evaluate -Dexpression=project.packaging -q -DforceStdout --file pom.xml)
           curl -LO "${PACKAGE_REPO}/${GROUP_ID_PATH}/${SERVICE_NAME}/${PROJECT_VERSION}/maven-metadata.xml" -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}"
           TIMESTAMP=$(xmllint --xpath '//metadata/versioning/snapshot/timestamp/text()' maven-metadata.xml)
           BUILD_NUMBER=$(xmllint --xpath '//metadata/versioning/snapshot/buildNumber/text()' maven-metadata.xml)
@@ -133,7 +133,7 @@ jobs:
           echo "artifact_sha256=${artifact_checksum#sha256:}" >> $GITHUB_OUTPUT
         env:
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
-          BROKER_JWT: ${{ secrets.BROKER_JWT }}
+          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
       - name: Checkout repository
@@ -152,9 +152,9 @@ jobs:
         id: set-download-url
         run: |
           sudo apt-get -qq install libxml2-utils
-          GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout --file ./pom.xml)
+          GROUP_ID=$(mvn help:evaluate -Dexpression=project.groupId -q -DforceStdout --file pom.xml)
           GROUP_ID_PATH="${GROUP_ID//.//}"
-          PACKAGE_TYPE=$(mvn help:evaluate -Dexpression=project.packaging -q -DforceStdout --file ./pom.xml)
+          PACKAGE_TYPE=$(mvn help:evaluate -Dexpression=project.packaging -q -DforceStdout --file pom.xml)
           ARTIFACT_NAME="${SERVICE_NAME}-${PROJECT_VERSION}.${PACKAGE_TYPE}"
           DOWNLOAD_URL="${PACKAGE_REPO}/${GROUP_ID_PATH}/${SERVICE_NAME}/${PROJECT_VERSION}/${ARTIFACT_NAME}"
           echo "${DOWNLOAD_URL}"

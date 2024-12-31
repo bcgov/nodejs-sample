@@ -10,8 +10,8 @@
       "id": "login",
       "provision": ["token/self"],
       "service": {
-        "name": "vvsddsv",
-        "project": "hello",
+        "name": "nodejs-sample",
+        "project": "nodejs-sample",
         "environment": "",
         "target": {
           "name": "jenkins-apps",
@@ -25,8 +25,8 @@
       "id": "configure",
       "provision": ["token/self"],
       "service": {
-        "name": "vvsddsv",
-        "project": "hello",
+        "name": "nodejs-sample",
+        "project": "nodejs-sample",
         "environment": ""
       }
     },
@@ -40,8 +40,8 @@
         }
       },
       "service": {
-        "name": "vvsddsv",
-        "project": "hello",
+        "name": "nodejs-sample",
+        "project": "nodejs-sample",
         "environment": ""
       },
       "package": {

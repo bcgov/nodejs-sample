@@ -1,15 +1,14 @@
 spec:
-  system: hello
+  system: "nodejs-sample"
   type: ""
   lifecycle: ""
   owner: ""
 metadata:
-  name: vvsddsv
+  name: "nodejs-sample"
   description: ""
   title: ""
   annotations:
-    playbook.io.nrs.gov.bc.ca/pomRoot: ./
-    github.com/project-slug: ""
+    github.com/project-slug: "bcgov-nr/nodejs-sample"
     playbook.io.nrs.gov.bc.ca/unitTestsPath: ""
     playbook.io.nrs.gov.bc.ca/gitHubPackages: true
     playbook.io.nrs.gov.bc.ca/gitHubOwnerPack: ""
@@ -19,6 +18,7 @@ metadata:
     playbook.io.nrs.gov.bc.ca/playbookPath: playbooks
     playbook.io.nrs.gov.bc.ca/tomcatContext: ""
     playbook.io.nrs.gov.bc.ca/useAltAppDirName: false
-    playbook.io.nrs.gov.bc.ca/altAppDirName: ""
     playbook.io.nrs.gov.bc.ca/addWebadeConfig: true
-    playbook.io.nrs.gov.bc.ca/clientId: " "
+    playbook.io.nrs.gov.bc.ca/clientId: "BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC"
+    playbook.io.nrs.gov.bc.ca/pomRoot: ""
+    playbook.io.nrs.gov.bc.ca/altAppDirName: ""

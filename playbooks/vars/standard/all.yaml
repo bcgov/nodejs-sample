@@ -7,8 +7,8 @@ ansible_become_password: "{{ lookup('ansible.builtin.env', 'PODMAN_CD_PASS') }}"
 ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
 
 # General properties
-pd_prop_project_name: "HELLO"
-pd_prop_service_name: "vvsddsv"
+pd_prop_project_name: "NODEJS-SAMPLE"
+pd_prop_service_name: "nodejs-sample"
 pd_prop_project_version: "{{ lookup('ansible.builtin.env', 'PODMAN_PROJECT_VERSION') }}"
 pd_prop_artifact_name: "{{ lookup('ansible.builtin.env', 'PODMAN_ARTIFACT_NAME') }}"
 pd_prop_artifact_sha256: "{{ lookup('ansible.builtin.env', 'PODMAN_ARTIFACT_SHA256') }}"

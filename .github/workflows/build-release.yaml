@@ -15,15 +15,15 @@ concurrency:
 
 env:
   BROKER_URL: https://broker.io.nrs.gov.bc.ca
-  BROKER_JWT: ${{ secrets.BROKER_JWT }}
-  SERVICE_PROJECT: hello
-  SERVICE_NAME: vvsddsv
+  BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+  SERVICE_PROJECT: nodejs-sample
+  SERVICE_NAME: nodejs-sample
 
 jobs:
   check_token_expiration:
     uses: ./.github/workflows/check-token.yaml
     secrets:
-      token: ${{ secrets.BROKER_JWT }}
+      token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
   build-release:
     name: Build and release
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
       - name: Open intention
         uses: bcgov-nr/action-broker-intention-open@v2
         with:
-          broker_jwt: ${{ secrets.BROKER_JWT }}
+          broker_jwt: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           intention_path: intention.json
           quickstart: true
       - name: Set intention ID for deployment job
