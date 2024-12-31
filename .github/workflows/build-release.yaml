@@ -81,7 +81,7 @@ jobs:
           broker_jwt: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           intention_path: intention.json
           quickstart: true
-      - name: Set intention ID for deployment job
+      - name: Set intention ID for build job
         id: set-intention-id
         run: |
           echo "intention_id=${INTENTION_ID}" >> $GITHUB_OUTPUT
@@ -109,12 +109,12 @@ jobs:
           ARTIFACT_SHA256: ${{ steps.publish-artifact.outputs.artifact_sha256 }}
           BUILD_TOKEN: ${{ env.ACTION_TOKEN_BUILD }}
       - name: Close intention
-        if: success() && ${{ env.INTENTION_TOKEN }} != ''
+        if: ${{ success() && env.INTENTION_TOKEN != '' }}
         uses: bcgov-nr/action-broker-intention-close@v3
         with:
           intention_token: ${{ env.INTENTION_TOKEN }}
       - name: Close intention (Failure)
-        if: failure() && ${{ env.INTENTION_TOKEN }} != ''
+        if: ${{ failure() && env.INTENTION_TOKEN != '' }}
         uses: bcgov-nr/action-broker-intention-close@v3
         with:
           intention_token: ${{ env.INTENTION_TOKEN }}
