@@ -1,0 +1,24 @@
+spec:
+  system: hello
+  type: ""
+  lifecycle: ""
+  owner: ""
+metadata:
+  name: vvsddsv
+  description: ""
+  title: ""
+  annotations:
+    playbook.io.nrs.gov.bc.ca/pomRoot: ./
+    github.com/project-slug: ""
+    playbook.io.nrs.gov.bc.ca/unitTestsPath: ""
+    playbook.io.nrs.gov.bc.ca/gitHubPackages: true
+    playbook.io.nrs.gov.bc.ca/gitHubOwnerPack: ""
+    playbook.io.nrs.gov.bc.ca/artifactoryProject: ""
+    playbook.io.nrs.gov.bc.ca/artifactoryPackageType: ""
+    playbook.io.nrs.gov.bc.ca/deployOnPrem: true
+    playbook.io.nrs.gov.bc.ca/playbookPath: playbooks
+    playbook.io.nrs.gov.bc.ca/tomcatContext: ""
+    playbook.io.nrs.gov.bc.ca/useAltAppDirName: false
+    playbook.io.nrs.gov.bc.ca/altAppDirName: ""
+    playbook.io.nrs.gov.bc.ca/addWebadeConfig: true
+    playbook.io.nrs.gov.bc.ca/clientId: " "
