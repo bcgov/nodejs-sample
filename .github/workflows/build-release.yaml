@@ -109,6 +109,13 @@ jobs:
           ARTIFACT_SHA256: ${{ steps.publish-artifact.outputs.artifact_sha256 }}
           BUILD_TOKEN: ${{ env.ACTION_TOKEN_BUILD }}
       - name: Close intention
-        uses: bcgov-nr/action-broker-intention-close@v1
+        if: success() && ${{ env.INTENTION_TOKEN }} != ''
+        uses: bcgov-nr/action-broker-intention-close@v3
         with:
           intention_token: ${{ env.INTENTION_TOKEN }}
+      - name: Close intention (Failure)
+        if: failure() && ${{ env.INTENTION_TOKEN }} != ''
+        uses: bcgov-nr/action-broker-intention-close@v3
+        with:
+          intention_token: ${{ env.INTENTION_TOKEN }}
+          outcome: failure
