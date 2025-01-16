@@ -22,3 +22,4 @@ metadata:
     playbook.io.nrs.gov.bc.ca/clientId: "BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC"
     playbook.io.nrs.gov.bc.ca/pomRoot: ""
     playbook.io.nrs.gov.bc.ca/altAppDirName: ""
+    license: Apache-2.0
