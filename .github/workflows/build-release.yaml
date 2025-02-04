@@ -34,7 +34,7 @@ jobs:
     outputs:
       project_version: ${{ steps.set-version.outputs.project_version }}
       intention_id: ${{ steps.set-intention-id.outputs.intention_id }}
-      branch: $${{ steps.set-version.outputs.branch }}
+      branch: $${{ steps.set-version.outputs.tag }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
