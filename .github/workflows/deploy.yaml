@@ -7,6 +7,7 @@ on:
         description: 'Use branch for testing configuration changes'
         required: false
         type: string
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -72,11 +73,11 @@ jobs:
       - name: Set nodejs package URL
         id: set-download-url
         run: |
-          DOWNLOAD_URL="${PACKAGE_REPO}:${PROJECT_VERSION}"
+          DOWNLOAD_URL="${PACKAGE_REPO}:${PACKAGE_TAG}"
           echo "${DOWNLOAD_URL}"
           echo "download_url=$(echo ${DOWNLOAD_URL})" >> $GITHUB_OUTPUT
         env:
-          PROJECT_VERSION: ${{ steps.set-build-output.outputs.project_version }}
+          PACKAGE_TAG: ${{ github.ref_name }}
           PACKAGE_REPO: ${{ env.PACKAGE_REPO }}
   deploy-tag:
     name: Deploy release version
@@ -129,11 +130,11 @@ jobs:
       - name: Set download URL
         id: set-download-url
         run: |
-          DOWNLOAD_URL="${PACKAGE_REPO}:${PROJECT_VERSION}"
+          DOWNLOAD_URL="${PACKAGE_REPO}:${PACKAGE_TAG}"
           echo "${DOWNLOAD_URL}"
           echo "download_url=$(echo ${DOWNLOAD_URL})" >> $GITHUB_OUTPUT
         env:
-          PROJECT_VERSION: ${{ steps.set-tag-output.outputs.project_version }}
+          PACKAGE_TAG: ${{ steps.set-tag-output.outputs.project_version }}
           PACKAGE_REPO: ${{ env.PACKAGE_REPO }}
   submit-job:
     name: Submit job

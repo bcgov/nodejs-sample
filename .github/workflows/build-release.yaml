@@ -58,12 +58,12 @@ jobs:
           if [[ ${{ startsWith(github.ref, 'refs/heads/') }} = true ]]; then
             version=$(cat package.json | jq -r '.version')
             echo "project_version=$version-${SAFE_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo "tag=${SAFE_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
           if [[ ${{ startsWith(github.ref, 'refs/pull/') }} = true ]]; then
             version=$(cat package.json | jq -r '.version')
             echo "project_version=$version-${SAFE_REF_NAME}" >> "$GITHUB_OUTPUT"
-            echo "tag=${SAFE_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
           if [[ ${{ startsWith(github.ref, 'refs/tags/v') }} = true ]]; then
             echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
