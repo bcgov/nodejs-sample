@@ -18,6 +18,8 @@
 
     # create a self signed certificate to allow for HTTPS
     - name: self_signed_cert
+      vars:
+        ssc_format: "openssl"
 
     # install & configure the Tomcat container
     - name: nodejs
