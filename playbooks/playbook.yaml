@@ -26,3 +26,7 @@
       vars:
         nodejs_version_number: "latest-v22.x"
         proxy_env: "{{ env_vars }}"
+
+    - name: nodejs_app
+      vars:
+        proxy_env: "{{ env_vars }}"
