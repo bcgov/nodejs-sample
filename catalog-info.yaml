@@ -1,25 +1,22 @@
 spec:
   system: "nodejs-sample"
-  type: ""
-  lifecycle: ""
+  type: website
+  lifecycle: experimental
   owner: ""
 metadata:
   name: "nodejs-sample"
-  description: ""
-  title: ""
   annotations:
     github.com/project-slug: "bcgov-nr/nodejs-sample"
-    playbook.io.nrs.gov.bc.ca/unitTestsPath: ""
-    playbook.io.nrs.gov.bc.ca/gitHubPackages: true
-    playbook.io.nrs.gov.bc.ca/gitHubOwnerPack: ""
-    playbook.io.nrs.gov.bc.ca/artifactoryProject: ""
-    playbook.io.nrs.gov.bc.ca/artifactoryPackageType: ""
     playbook.io.nrs.gov.bc.ca/deployOnPrem: true
     playbook.io.nrs.gov.bc.ca/playbookPath: playbooks
-    playbook.io.nrs.gov.bc.ca/tomcatContext: ""
     playbook.io.nrs.gov.bc.ca/useAltAppDirName: false
     playbook.io.nrs.gov.bc.ca/addWebadeConfig: true
     playbook.io.nrs.gov.bc.ca/clientId: "BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC"
-    playbook.io.nrs.gov.bc.ca/pomRoot: ""
-    playbook.io.nrs.gov.bc.ca/altAppDirName: ""
     license: Apache-2.0
+    playbook.io.nrs.gov.bc.ca/unitTestsPath: ""
+    playbook.io.nrs.gov.bc.ca/publishArtifactSuffix: dist node_modules package.json package-lock.json
+    composer.io.nrs.gov.bc.ca/generators: gh-nodejs-build,backstage
+  description: NodeJS sample application
+  title: NodeJS Sample
+apiVersion: backstage.io/v1alpha1
+kind: Component
