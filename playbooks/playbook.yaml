@@ -12,10 +12,6 @@
   roles:
     # Establish the port number
     - name: port_manager
-      vars:
-        polaris_apps_project_name: "NODEJS-SAMPLE"
-        polaris_apps_service_name: "nodejs-sample"
-        polaris_apps_service_install_name: "{{ polaris_apps_project_version }}-{{ polaris_apps_build_number }}"
 
     # prepare the installation environment by creating the necessary folders
     - name: create_project_directories

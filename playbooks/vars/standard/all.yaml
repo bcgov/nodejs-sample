@@ -10,9 +10,9 @@ polaris_apps_project_version: "{{ lookup('ansible.builtin.env', 'PODMAN_PROJECT_
 polaris_apps_build_number: "{{ lookup('ansible.builtin.env', 'PODMAN_BUILD_NUMBER') }}"
 
 # General properties
-#polaris_apps_project_name: "NODEJS-SAMPLE"
-#polaris_apps_service_name: "nodejs-sample"
-#polaris_apps_service_install_name: "{{ polaris_apps_project_version }}-{{ polaris_apps_build_number }}"
+polaris_apps_project_name: "NODEJS-SAMPLE"
+polaris_apps_service_name: "nodejs-sample"
+polaris_apps_service_install_name: "{{ polaris_apps_project_version }}-{{ polaris_apps_build_number }}"
 
 # The following properties are custom to each particular service
 context:
