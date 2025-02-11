@@ -6,9 +6,13 @@ ansible_user: "{{ lookup('ansible.builtin.env', 'PODMAN_CD_USER') }}"
 ansible_become_password: "{{ lookup('ansible.builtin.env', 'PODMAN_CD_PASS') }}"
 ansible_ssh_extra_args: "-o StrictHostKeyChecking=no"
 
+polaris_apps_project_version: "{{ lookup('ansible.builtin.env', 'PODMAN_PROJECT_VERSION') }}"
+polaris_apps_build_number: "{{ lookup('ansible.builtin.env', 'PODMAN_BUILD_NUMBER') }}"
+
 # General properties
-pd_prop_project_name: "NODEJS-SAMPLE"
-pd_prop_service_name: "nodejs-sample"
+polaris_apps_project_name: "NODEJS-SAMPLE"
+polaris_apps_service_name: "nodejs-sample"
+polaris_apps_service_install_name: "{{ polaris_apps_project_version }}-{{ polaris_apps_build_number }}"
 
 # The following properties are custom to each particular service
 context:
