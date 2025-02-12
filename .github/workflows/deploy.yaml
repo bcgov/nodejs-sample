@@ -110,7 +110,7 @@ jobs:
             echo "Exiting..."
             exit 1
           fi
-          echo "project_version=${PROJECT_VERSION}" >> $GITHUB_OUTPUT
+          echo "project_version=${TAG}" >> $GITHUB_OUTPUT
           echo "build_guid=$(echo ${RESPONSE} | jq -r '.data[].id')" >> $GITHUB_OUTPUT
           echo "build_number=$(echo ${RESPONSE} | jq -r '.data[].actions[].package.buildNumber')" >> $GITHUB_OUTPUT
           echo "artifact_name=$(echo ${RESPONSE} | jq -r '.data[].actions[].artifacts[].name')" >> $GITHUB_OUTPUT
