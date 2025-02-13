@@ -1,0 +1,42 @@
+name: Composer update check
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-container:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u USERNAME --password-stdin
+
+      - name: Pull Container
+        run: |
+          docker pull ghcr.io/bcgov/nr-repository-composer:main
+
+      - name: Read catalog-info.yaml and run generators
+        run: |
+          GENERATORS=$(yq eval '.metadata.annotations."composer.io.nrs.gov.bc.ca/generators"' catalog-info.yaml)
+          IFS=',' read -ra GEN_ARRAY <<< "$GENERATORS"
+          for gen in "${GEN_ARRAY[@]}"; do
+            git reset --hard
+            docker run --rm -v ${PWD}:/src ghcr.io/bcgov/nr-repository-composer:main -- nr-repository-composer:"$gen" --promptless --force --headless || exit 1
+
+            if [[ -n "$(git status --porcelain)" ]]; then
+              git config --global user.name "github-actions"
+              git config --global user.email "github-actions@github.com"
+              BRANCH_NAME="update-generated-files-$gen"
+              git checkout -b "$BRANCH_NAME"
+              git add .
+              git commit -m "Automated update of generated files for $gen"
+              git push origin "$BRANCH_NAME"
+              gh pr create --base main --head "$BRANCH_NAME" --title "Automated update of generated files for $gen" --body "This PR contains updates to generated files for $gen."
+          done
