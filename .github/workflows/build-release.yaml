@@ -20,14 +20,16 @@ env:
   SERVICE_NAME: nodejs-sample
 
 jobs:
-  check_token_expiration:
+  check-token-expiration:
+    name: Check token expiration
     uses: ./.github/workflows/check-token.yaml
+    permissions: {}
     secrets:
       token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
   build-release:
     name: Build and release
     runs-on: ubuntu-latest
-    needs: check_token_expiration
+    needs: check-token-expiration
     permissions:
       contents: read
       packages: write
