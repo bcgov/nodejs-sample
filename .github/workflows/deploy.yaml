@@ -192,9 +192,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # See: https://github.com/bcgov-nr/polaris-pipelines
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0
+            fetch-tags: true
+            ref: ${{ github.ref }}
       - name: Submit deployment job
         id: submit-job
         run: |
+          # Record the timestamp in ISO 8601 format
+          GH_TASK_START=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
+          echo "gh_task_start=$GH_TASK_START" >> $GITHUB_OUTPUT
+          
           curl \
           --data-urlencode "token=${{ secrets.JENKINS_TOKEN }}" \
           --data-urlencode "githubToken=${{ secrets.GITHUB_TOKEN }}" \
