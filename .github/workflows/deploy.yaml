@@ -235,7 +235,7 @@ jobs:
           echo "Deployment job URL: ${DEPLOYMENT_JOB_URL}"
       - name: Wait for Jenkins deployment job to be triggered and completed
         id: check-jenkins-job-status
-        run: sh ./.github/workflows/check-deploy-job-status.sh
+        run: ./.github/workflows/check-deploy-job-status.sh
         env:
           GH_TASK_START: ${{ steps.submit-job.outputs.gh_task_start }}
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
