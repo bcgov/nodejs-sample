@@ -1,8 +1,11 @@
-name: Deploy
+name: Deploy to environment
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
+      environment:
+        required: true
+        type: string
       config_branch:
         description: 'Use branch for testing configuration changes'
         required: false
@@ -27,7 +30,7 @@ jobs:
     secrets:
       token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
   deploy-pre-release-build:
-    name: Trigger dev/test deployment
+    name: Trigger ${{ inputs.environment }} deployment
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     needs: check-token-expiration
@@ -42,6 +45,19 @@ jobs:
       artifact_sha256: ${{ steps.set-build-output.outputs.artifact_sha256 }}
       download_url: ${{ steps.set-download-url.outputs.download_url }}
     steps:
+      - name: Lookup PR Merge Ref
+        id: lookup-pr-merge-ref
+        run: |
+          if [[ ${{ github.ref_name != 'main' }} = true ]]; then
+            RESPONSE=$(curl -s "https://api.github.com/repos/bcgov-nr/nodejs-sample/pulls?head=bcgov-nr:${{ github.ref_name }}&state=open&base=main" \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json")
+            echo "build_sha=$(echo ${RESPONSE} | jq -r .[0].merge_commit_sha)" >> $GITHUB_OUTPUT
+            echo "checkout_ref=refs/pull/$(echo ${RESPONSE} | jq -r .[0].number)/merge" >> $GITHUB_OUTPUT
+          else
+            echo "build_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "checkout_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
       - name: Set build output
         id: set-build-output
         run: |
@@ -50,11 +66,27 @@ jobs:
             -H 'accept: application/json' \
             -H 'Authorization: Bearer '"${BROKER_JWT}"'' \
             -d '')
+          echo "Broker API response:"
+          echo "$RESPONSE"
           if echo "$RESPONSE" | jq -e '.statusCode == 401' > /dev/null; then
             echo "Status code is 401. This indicates an authorization error."
             echo "Please check if your Broker Token is valid. Teams can generate a new one in Broker if needed."
             echo "Link: https://broker.io.nrs.gov.bc.ca/browse/brokerAccount"
             echo "Exiting..."
+            exit 1
+          fi
+          if [ "$(echo "$RESPONSE" | jq '.data | length')" -eq 0 ]; then
+            echo
+            echo "============================================================"
+            echo "Error: Broker API response data is empty."
+            echo "------------------------------------------------------------"
+            echo "Explanation: No build information was found for this commit."
+            echo "Why it matters: The deployment cannot proceed without build metadata."
+            echo "Check if the build completed and published to Broker."
+            echo "--- Broker API response below ---"
+            echo "$RESPONSE"
+            echo "============================================================"
+            echo
             exit 1
           fi
           echo "project_version=$(echo ${RESPONSE} | jq -r '.data[].actions[].package.version')" >> $GITHUB_OUTPUT
@@ -68,13 +100,13 @@ jobs:
           BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
-          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SHA: ${{ steps.lookup-pr-merge-ref.outputs.build_sha }}
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
             fetch-depth: 0
             fetch-tags: true
-            ref: ${{ github.ref }}
+            ref: ${{ steps.lookup-pr-merge-ref.outputs.checkout_ref }}
       - name: Set nodejs package download URL
         id: set-download-url
         run: |
@@ -116,6 +148,20 @@ jobs:
             echo "Please check if your Broker Token is valid. Teams can generate a new one in Broker if needed."
             echo "Link: https://broker.io.nrs.gov.bc.ca/browse/brokerAccount"
             echo "Exiting..."
+            exit 1
+          fi
+          if [ "$(echo "$RESPONSE" | jq '.data | length')" -eq 0 ]; then
+            echo
+            echo "============================================================"
+            echo "Error: Broker API response data is empty."
+            echo "------------------------------------------------------------"
+            echo "Explanation: No build information was found for this tag."
+            echo "Why it matters: The deployment cannot proceed without build metadata."
+            echo "Check if the build completed and published to Broker."
+            echo "--- Broker API response below ---"
+            echo "$RESPONSE"
+            echo "============================================================"
+            echo
             exit 1
           fi
           echo "project_tag=${TAG}" >> $GITHUB_OUTPUT
@@ -160,6 +206,7 @@ jobs:
     steps:
       # See: https://github.com/bcgov-nr/polaris-pipelines
       - name: Submit deployment job
+        id: submit-job
         run: |
           curl \
           --data-urlencode "token=${{ secrets.JENKINS_TOKEN }}" \
@@ -173,6 +220,7 @@ jobs:
           --data-urlencode "configBranch=${{ inputs.config_branch || '' }}" \
           --data-urlencode "downloadUrl=${DOWNLOAD_URL}" \
           --data-urlencode "downloadType=OCI" \
+          --data-urlencode "envShort=${{ inputs.environment }}" \
           -H "Connection: close" \
           ${{ env.URL }}/${{ env.JOB }}
         env:
@@ -185,6 +233,12 @@ jobs:
         run: |
           DEPLOYMENT_JOB_URL="${{ env.URL }}/job/${{ env.SERVICE_PROJECT }}/job/${{ env.SERVICE_NAME }}/"
           echo "Deployment job URL: ${DEPLOYMENT_JOB_URL}"
-      - name: Keep GH token alive
-        run: sleep 90s
-        shell: bash
+      - name: Wait for Jenkins deployment job to be triggered and completed
+        id: check-jenkins-job-status
+        run: sh ./.github/workflows/check-deploy-job-status.sh
+        env:
+          GH_TASK_START: ${{ steps.submit-job.outputs.gh_task_start }}
+          BROKER_URL: https://broker.io.nrs.gov.bc.ca
+          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+          SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
+          SERVICE_NAME: ${{ env.SERVICE_NAME }}
