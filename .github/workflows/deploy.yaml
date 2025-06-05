@@ -52,8 +52,10 @@ jobs:
             RESPONSE=$(curl -s "https://api.github.com/repos/bcgov-nr/nodejs-sample/pulls?head=bcgov-nr:${{ github.ref_name }}&state=open&base=main" \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github+json")
+            PR_NUMBER=$(echo "${RESPONSE}" | jq -r '.[0].number')
             echo "build_sha=$(echo ${RESPONSE} | jq -r .[0].merge_commit_sha)" >> $GITHUB_OUTPUT
-            echo "checkout_ref=refs/pull/$(echo ${RESPONSE} | jq -r .[0].number)/merge" >> $GITHUB_OUTPUT
+            echo "checkout_ref=refs/pull/${PR_NUMBER}/merge" >> $GITHUB_OUTPUT
+            echo "package_tag="${PR_NUMBER}-merge" >> $GITHUB_OUTPUT
           else
             echo "build_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "checkout_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
@@ -110,24 +112,11 @@ jobs:
       - name: Set nodejs package download URL
         id: set-download-url
         run: |
-          # Remove slashes for branch tag
-          BRANCH_TAG=$(echo "${GITHUB_REF_NAME}" | tr '/' '-')
-
-          # Try to find the most recent closed PR for this branch
-          PR_RESPONSE=$(curl -s "https://api.github.com/repos/bcgov-nr/nodejs-sample/pulls?head=bcgov-nr:${GITHUB_REF_NAME}&state=closed&sort=updated&direction=desc")
-          PR_NUMBER=$(echo "$PR_RESPONSE" | jq -r '.[0].number')
-          if [[ "$PR_NUMBER" != "null" && -n "$PR_NUMBER" ]]; then
-            PACKAGE_TAG="${PR_NUMBER}-merge"
-            echo "Found PR #$PR_NUMBER for branch ${GITHUB_REF_NAME}, using tag: $PACKAGE_TAG"
-          else
-            PACKAGE_TAG="$BRANCH_TAG"
-            echo "No PR found for branch ${GITHUB_REF_NAME}, using branch tag: $PACKAGE_TAG"
-          fi
           DOWNLOAD_URL="${PACKAGE_REPO}:${PACKAGE_TAG}"
           echo "${DOWNLOAD_URL}"
           echo "download_url=$(echo ${DOWNLOAD_URL})" >> $GITHUB_OUTPUT
         env:
-          GITHUB_REF_NAME: ${{ github.ref_name }}
+          PACKAGE_TAG: ${{ steps.lookup-pr-merge-ref.outputs.package_tag}}
           PACKAGE_REPO: ${{ env.PACKAGE_REPO }}
   deploy-release-build:
     name: Trigger prod deployment
