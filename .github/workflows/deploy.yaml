@@ -55,7 +55,7 @@ jobs:
             PR_NUMBER=$(echo "${RESPONSE}" | jq -r '.[0].number')
             echo "build_sha=$(echo ${RESPONSE} | jq -r .[0].merge_commit_sha)" >> $GITHUB_OUTPUT
             echo "checkout_ref=refs/pull/${PR_NUMBER}/merge" >> $GITHUB_OUTPUT
-            echo "package_tag="${PR_NUMBER}-merge" >> $GITHUB_OUTPUT
+            echo "package_tag=${PR_NUMBER}-merge" >> $GITHUB_OUTPUT
           else
             echo "build_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "checkout_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
