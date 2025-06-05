@@ -59,6 +59,7 @@ jobs:
           else
             echo "build_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
             echo "checkout_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+            echo "package_tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
       - name: Set build output
         id: set-build-output
