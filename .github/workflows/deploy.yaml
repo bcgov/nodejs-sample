@@ -45,11 +45,26 @@ jobs:
       artifact_sha256: ${{ steps.set-build-output.outputs.artifact_sha256 }}
       download_url: ${{ steps.set-download-url.outputs.download_url }}
     steps:
+      - name: Lookup PR Merge Ref
+        id: lookup-pr-merge-ref
+        run: |
+          if [[ ${{ github.ref_name != 'main' }} = true ]]; then
+            RESPONSE=$(curl -s "https://api.github.com/repos/bcgov-nr/nodejs-sample/pulls?head=bcgov-nr:${{ github.ref_name }}&state=open&base=main" \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json")
+            PR_NUMBER=$(echo "${RESPONSE}" | jq -r '.[0].number')
+            echo "build_sha=$(echo ${RESPONSE} | jq -r .[0].merge_commit_sha)" >> $GITHUB_OUTPUT
+            echo "checkout_ref=refs/pull/${PR_NUMBER}/merge" >> $GITHUB_OUTPUT
+            echo "package_tag=${PR_NUMBER}-merge" >> $GITHUB_OUTPUT
+          else
+            echo "build_sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+            echo "checkout_ref=${{ github.ref }}" >> $GITHUB_OUTPUT
+          fi
       - name: Set build output
         id: set-build-output
         run: |
           RESPONSE=$(curl -s -X 'POST' \
-            "${BROKER_URL}/v1/intention/search?where=%7B%22actions.action%22%3A%22package-build%22%2C%22actions.service.project%22%3A%22${SERVICE_PROJECT}%22%2C%22actions.service.name%22%3A%22${SERVICE_NAME}%22%2C%22actions.package.buildVersion%22%3A%22${GITHUB_SHA}%22%7D&offset=0&limit=1" \
+            "${BROKER_URL}/v1/intention/search?where=%7B%22actions.action%22%3A%22package-build%22%2C%22actions.service.project%22%3A%22${SERVICE_PROJECT}%22%2C%22actions.service.name%22%3A%22${SERVICE_NAME}%22%2C%22actions.package.buildVersion%22%3A%22${BUILD_SHA}%22%7D&offset=0&limit=1" \
             -H 'accept: application/json' \
             -H 'Authorization: Bearer '"${BROKER_JWT}"'' \
             -d '')
@@ -67,7 +82,7 @@ jobs:
             echo "============================================================"
             echo "Error: Broker API response data is empty."
             echo "------------------------------------------------------------"
-            echo "Explanation: No build information was found for this commit."
+            echo "Explanation: No build information was found for this tag."
             echo "Why it matters: The deployment cannot proceed without build metadata."
             echo "Check if the build completed and published to Broker."
             echo "--- Broker API response below ---"
@@ -87,22 +102,21 @@ jobs:
           BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
-          GITHUB_SHA: ${{ github.sha }}
+          BUILD_SHA: ${{ steps.lookup-pr-merge-ref.outputs.build_sha }}
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
             fetch-depth: 0
             fetch-tags: true
-            ref: ${{ github.ref }}
+            ref: ${{ steps.lookup-pr-merge-ref.outputs.checkout_ref  }}
       - name: Set nodejs package download URL
         id: set-download-url
         run: |
-          SAFE_PACKAGE_TAG=$(echo "$PACKAGE_TAG" | tr '/' '-')
-          DOWNLOAD_URL="${PACKAGE_REPO}:${SAFE_PACKAGE_TAG}"
+          DOWNLOAD_URL="${PACKAGE_REPO}:${PACKAGE_TAG}"
           echo "${DOWNLOAD_URL}"
           echo "download_url=$(echo ${DOWNLOAD_URL})" >> $GITHUB_OUTPUT
         env:
-          PACKAGE_TAG: ${{ github.ref_name }}
+          PACKAGE_TAG: ${{ steps.lookup-pr-merge-ref.outputs.package_tag}}
           PACKAGE_REPO: ${{ env.PACKAGE_REPO }}
   deploy-release-build:
     name: Trigger prod deployment
