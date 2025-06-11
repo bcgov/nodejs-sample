@@ -27,6 +27,7 @@ jobs:
     name: Trigger ${{ inputs.environment }} deployment
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     permissions:
       contents: read
       packages: read
@@ -116,6 +117,7 @@ jobs:
     name: Trigger prod deployment
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     permissions:
       contents: read
       packages: read
