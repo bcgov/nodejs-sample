@@ -214,9 +214,7 @@ jobs:
           
           # Get environment info from the repo's deployment environments endpoint
           ENV_INFO=$(gh api repos/${REPO}/environments/${ENVIRONMENT})
-          echo "Environment info: $ENV_INFO"
           REVIEWERS=$(echo "$ENV_INFO" | jq -r '.protection_rules[]? | select(.reviewers != null) | .reviewers[0] // false')
-          echo "Reviewers: $REVIEWERS"
           if [[ -z "$REVIEWERS" ]]; then
             REVIEWERS_REQUIRED=false
           else
@@ -227,7 +225,6 @@ jobs:
             # Reviewers are required, get the approver from approvals endpoint
             RUN_ID="${{ github.run_id }}"
             APPROVALS_JSON=$(gh api repos/${REPO}/actions/runs/${RUN_ID}/approvals)
-            echo "Approvals JSON: $APPROVALS_JSON"
             APPROVER_ID=$(echo "$APPROVALS_JSON" | jq -r --arg ENVIRONMENT "$ENVIRONMENT" \
               '.[] | select(.environments[]?.name == $ENVIRONMENT) | .user.id // empty')
             if [[ -z "$APPROVER_ID" ]]; then
