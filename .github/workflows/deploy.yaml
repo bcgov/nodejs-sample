@@ -247,6 +247,14 @@ jobs:
           # Record the timestamp in ISO 8601 format
           GH_TASK_START=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
           echo "gh_task_start=$GH_TASK_START" >> $GITHUB_OUTPUT
+
+          # Require DEPLOYMENT_APPROVER in guid@GitHub format
+          if [[ -n "${{ steps.get-deployment-approver.outputs.approver_id }}" ]]; then
+            DEPLOYMENT_APPROVER="${{ steps.get-deployment-approver.outputs.approver_id }}"
+          else
+            echo "Error: No deployment approver found. Failing deployment."
+            exit 1
+          fi
           
           curl \
           --data-urlencode "token=${{ secrets.JENKINS_TOKEN }}" \
@@ -260,7 +268,8 @@ jobs:
           --data-urlencode "configBranch=${{ inputs.config_branch || '' }}" \
           --data-urlencode "downloadUrl=${DOWNLOAD_URL}" \
           --data-urlencode "downloadType=OCI" \
-          --data-urlencode "envShort=${{ inputs.environment }}" \
+          --data-urlencode "envShort=${{ inputs.environment }}" \          
+          --data-urlencode "deploymentApprover=${DEPLOYMENT_APPROVER}" \
           -H "Connection: close" \
           ${{ env.URL }}/${{ env.JOB }}
         env:
