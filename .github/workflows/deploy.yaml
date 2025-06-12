@@ -23,17 +23,11 @@ env:
   PACKAGE_REPO: ghcr.io/${{ github.repository }}/package
 
 jobs:
-  check-token-expiration:
-    name: Check token expiration
-    uses: ./.github/workflows/check-token.yaml
-    permissions: {}
-    secrets:
-      token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
   deploy-pre-release-build:
     name: Trigger ${{ inputs.environment }} deployment
     if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
-    needs: check-token-expiration
+    environment: ${{ inputs.environment }}
     permissions:
       contents: read
       packages: read
@@ -49,7 +43,7 @@ jobs:
         id: lookup-pr-merge-ref
         run: |
           if [[ ${{ github.ref_name != 'main' }} = true ]]; then
-            RESPONSE=$(curl -s "https://api.github.com/repos/bcgov-nr/nodejs-sample/pulls?head=bcgov-nr:${{ github.ref_name }}&state=open&base=main" \
+            RESPONSE=$(curl -s "https://api.github.com/repos/bcgov/nodejs-sample/pulls?head=bcgov:${{ github.ref_name }}&state=open&base=main" \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github+json")
             PR_NUMBER=$(echo "${RESPONSE}" | jq -r '.[0].number')
@@ -123,7 +117,7 @@ jobs:
     name: Trigger prod deployment
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
-    needs: check-token-expiration
+    environment: ${{ inputs.environment }}
     permissions:
       contents: read
       packages: read
@@ -213,12 +207,54 @@ jobs:
             fetch-depth: 0
             fetch-tags: true
             ref: ${{ github.ref }}
+      - name: Get deployment approver
+        id: get-deployment-approver
+        run: |
+          set -e
+          ENVIRONMENT="${{ inputs.environment }}"
+          REPO="${{ github.repository }}"
+          
+          # Get environment info from the repo's deployment environments endpoint
+          ENV_INFO=$(gh api repos/${REPO}/environments/${ENVIRONMENT})
+          REVIEWERS=$(echo "$ENV_INFO" | jq -r '.protection_rules[]? | select(.reviewers != null) | .reviewers[0] // false')
+          if [[ -z "$REVIEWERS" ]]; then
+            REVIEWERS_REQUIRED=false
+          else
+            REVIEWERS_REQUIRED=true
+          fi
+          
+          if [[ "$REVIEWERS_REQUIRED" == "true" ]]; then
+            # Reviewers are required, get the approver from approvals endpoint
+            RUN_ID="${{ github.run_id }}"
+            APPROVALS_JSON=$(gh api repos/${REPO}/actions/runs/${RUN_ID}/approvals)
+            APPROVER_ID=$(echo "$APPROVALS_JSON" | jq -r --arg ENVIRONMENT "$ENVIRONMENT" \
+              '.[] | select(.environments[]?.name == $ENVIRONMENT) | .user.id // empty')
+            if [[ -z "$APPROVER_ID" ]]; then
+              echo "No approver found for run ID: $RUN_ID"
+              exit 1
+            fi
+            echo "approver_id=${APPROVER_ID}@GitHub" >> $GITHUB_OUTPUT
+          else
+            # No reviewers required, use the GitHub actor's user id as the approver
+            ACTOR_ID=$(gh api users/${{ github.actor }} | jq -r '.id')
+            echo "approver_id=${ACTOR_ID}@GitHub" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
       - name: Submit deployment job
         id: submit-job
         run: |
           # Record the timestamp in ISO 8601 format
           GH_TASK_START=$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")
           echo "gh_task_start=$GH_TASK_START" >> $GITHUB_OUTPUT
+
+          # Require DEPLOYMENT_APPROVER in guid@GitHub format
+          if [[ -n "${{ steps.get-deployment-approver.outputs.approver_id }}" ]]; then
+            DEPLOYMENT_APPROVER="${{ steps.get-deployment-approver.outputs.approver_id }}"
+          else
+            echo "Error: No deployment approver found. Failing deployment."
+            exit 1
+          fi
           
           curl \
           --data-urlencode "token=${{ secrets.JENKINS_TOKEN }}" \
@@ -233,6 +269,7 @@ jobs:
           --data-urlencode "downloadUrl=${DOWNLOAD_URL}" \
           --data-urlencode "downloadType=OCI" \
           --data-urlencode "envShort=${{ inputs.environment }}" \
+          --data-urlencode "deploymentApprover=${DEPLOYMENT_APPROVER}" \
           -H "Connection: close" \
           ${{ env.URL }}/${{ env.JOB }}
         env:

@@ -23,9 +23,16 @@ permissions:
   pull-requests: read
 
 jobs:
+  check-token-expiration:
+    name: Check token expiration
+    uses: ./.github/workflows/check-token.yaml
+    secrets:
+      token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+
   deploy-dev:
     name: Deploy to dev
     uses: ./.github/workflows/deploy.yaml
+    needs: check-token-expiration
     with:
       environment: dev
       config_branch: ${{ github.event.inputs.config_branch }}
