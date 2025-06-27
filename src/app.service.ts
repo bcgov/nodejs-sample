@@ -20,6 +20,7 @@ export class AppService {
         'actions.action': 'package-installation',
         'actions.service.project': PROJECT_NAME,
         'actions.service.name': SERVICE_NAME,
+        'actions.service.enviroment': `${environment}`,
       };
       const params = new URLSearchParams({
         where: JSON.stringify(where),
@@ -45,7 +46,6 @@ export class AppService {
           (a: any) => a.action === 'package-installation'
         );
         if (pkgInstallAction) {
-          environment = pkgInstallAction.service?.environment ?? 'unknown';
           packageVersion = pkgInstallAction.package?.version ?? 'unknown';
         }
         // Transaction times
