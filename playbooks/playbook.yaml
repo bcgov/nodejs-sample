@@ -1,5 +1,5 @@
 ---
-- name: nodejs-sample/nodejs-sample
+- name: oscar-example/nodejs-sample
   hosts: "{{ tomcat_server_hosts }}"
   collections:
     - polaris.deploy

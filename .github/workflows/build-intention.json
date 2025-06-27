@@ -10,7 +10,7 @@
       "id": "build",
       "provision": [],
       "service": {
-        "project": "nodejs-sample",
+        "project": "oscar-example",
         "name": "nodejs-sample",
         "environment": "tools"
       },

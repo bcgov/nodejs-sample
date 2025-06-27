@@ -16,9 +16,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVICE_PROJECT: nodejs-sample
+  SERVICE_PROJECT: oscar-example
   SERVICE_NAME: nodejs-sample
-  JOB: buildByToken/buildWithParameters?job=nodejs-sample/nodejs-sample
+  JOB: buildByToken/buildWithParameters?job=oscar-example/nodejs-sample
   URL: https://cd.io.nrs.gov.bc.ca
   PACKAGE_REPO: ghcr.io/${{ github.repository }}/package
 
@@ -31,6 +31,7 @@ jobs:
     permissions:
       contents: read
       packages: read
+      pull-requests: read
     outputs:
       project_version: ${{ steps.set-build-output.outputs.project_version }}
       build_guid: ${{ steps.set-build-output.outputs.build_guid }}
@@ -63,8 +64,6 @@ jobs:
             -H 'accept: application/json' \
             -H 'Authorization: Bearer '"${BROKER_JWT}"'' \
             -d '')
-          echo "Broker API response:"
-          echo "$RESPONSE"
           if echo "$RESPONSE" | jq -e '.statusCode == 401' > /dev/null; then
             echo "Status code is 401. This indicates an authorization error."
             echo "Please check if your Broker Token is valid. Teams can generate a new one in Broker if needed."
@@ -94,7 +93,7 @@ jobs:
           echo "artifact_sha256=${artifact_checksum#sha256:}" >> $GITHUB_OUTPUT
         env:
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
-          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+          BROKER_JWT: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
           BUILD_SHA: ${{ steps.lookup-pr-merge-ref.outputs.build_sha }}
@@ -103,7 +102,7 @@ jobs:
         with:
             fetch-depth: 0
             fetch-tags: true
-            ref: ${{ steps.lookup-pr-merge-ref.outputs.checkout_ref  }}
+            ref: ${{ steps.lookup-pr-merge-ref.outputs.checkout_ref }}
       - name: Set nodejs package download URL
         id: set-download-url
         run: |
@@ -114,7 +113,7 @@ jobs:
           PACKAGE_TAG: ${{ steps.lookup-pr-merge-ref.outputs.package_tag}}
           PACKAGE_REPO: ${{ env.PACKAGE_REPO }}
   deploy-release-build:
-    name: Trigger prod deployment
+    name: Trigger production deployment
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
@@ -169,7 +168,7 @@ jobs:
           echo "artifact_sha256=${artifact_checksum#sha256:}" >> $GITHUB_OUTPUT
         env:
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
-          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+          BROKER_JWT: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}
       - name: Checkout repository
@@ -259,7 +258,7 @@ jobs:
           curl \
           --data-urlencode "token=${{ secrets.JENKINS_TOKEN }}" \
           --data-urlencode "githubToken=${{ secrets.GITHUB_TOKEN }}" \
-          --data-urlencode "brokerJwt=${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}" \
+          --data-urlencode "brokerJwt=${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}" \
           --data-urlencode "artifactSha256=${ARTIFACT_SHA256}" \
           --data-urlencode "projectVersion=${PROJECT_VERSION}" \
           --data-urlencode "gitBranch=${{ github.ref_name }}" \
@@ -288,6 +287,6 @@ jobs:
         env:
           GH_TASK_START: ${{ steps.submit-job.outputs.gh_task_start }}
           BROKER_URL: https://broker.io.nrs.gov.bc.ca
-          BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+          BROKER_JWT: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
           SERVICE_PROJECT: ${{ env.SERVICE_PROJECT }}
           SERVICE_NAME: ${{ env.SERVICE_NAME }}

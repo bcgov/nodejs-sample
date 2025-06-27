@@ -15,8 +15,8 @@ concurrency:
 
 env:
   BROKER_URL: https://broker.io.nrs.gov.bc.ca
-  BROKER_JWT: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
-  SERVICE_PROJECT: nodejs-sample
+  BROKER_JWT: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
+  SERVICE_PROJECT: oscar-example
   SERVICE_NAME: nodejs-sample
 
 jobs:
@@ -25,7 +25,7 @@ jobs:
     uses: ./.github/workflows/check-token.yaml
     permissions: {}
     secrets:
-      token: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+      token: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
   build-release:
     name: Build and release
     runs-on: ubuntu-latest
@@ -87,11 +87,12 @@ jobs:
           PACKAGE_BUILD_GUID:  ${{ steps.set-build-output-parameters.outputs.build_guid }}
           PACKAGE_BUILD_NUMBER: ${{ github.run_number }}
           PACKAGE_BUILD_VERSION: ${{ steps.set-build-output-parameters.outputs.git_commit }}
+          PACKAGE_TYPE: application/vnd.oci.image.layer.v1.tar+gzip
           PACKAGE_VERSION: ${{ steps.set-version.outputs.project_version }}
       - name: Open intention
         uses: bcgov-nr/action-broker-intention-open@v2
         with:
-          broker_jwt: ${{ secrets.broker_jwt_BFB8F8BC_D617_484A_9A4E_E9B98AB4E5BC }}
+          broker_jwt: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
           intention_path: intention.json
           quickstart: true
       - name: Echo intention ID for deploy job
