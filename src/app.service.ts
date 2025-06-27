@@ -14,13 +14,12 @@ export class AppService {
     let transactionStart = 'unknown';
     let transactionEnd = 'unknown';
     let eventUrl = 'unknown';
-
     try {
       const where = {
         'actions.action': 'package-installation',
         'actions.service.project': PROJECT_NAME,
         'actions.service.name': SERVICE_NAME,
-        'actions.service.enviroment': environment,
+        'actions.service.environment': environment,
       };
       const params = new URLSearchParams({
         where: JSON.stringify(where),
