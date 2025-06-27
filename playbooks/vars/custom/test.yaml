@@ -2,4 +2,4 @@
 tomcat_server_hosts: tomcat-servers-ditalini
 log_level_root: DEBUG
 
-cfg_environment: test
+cfg_environment: "test"
