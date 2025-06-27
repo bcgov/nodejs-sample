@@ -9,7 +9,7 @@ export class AppService {
 
   async getHello(): Promise<string> {
     const apitoken = this.configService.get<string>('apitoken');
-    let environment = 'unknown';
+    const environment = this.configService.get<string>('environment');
     let packageVersion = 'unknown';
     let transactionStart = 'unknown';
     let transactionEnd = 'unknown';
