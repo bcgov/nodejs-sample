@@ -6,3 +6,4 @@
 # If you need to use a particular version of Tomcat, set the version here.
 # tomcat_version_number: "8.5.51"
 cfg_broker_api_token: "{{ lookup('ansible.builtin.env', 'PODMAN_API_TOKEN') }}"
+
