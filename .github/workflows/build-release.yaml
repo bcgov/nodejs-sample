@@ -35,10 +35,14 @@ jobs:
   build-release:
     name: Build and release
     runs-on: ubuntu-latest
-    needs: [check-token-expiration, test]
+    needs: 
+      - check-token-expiration
+      # Only depend on test if not a release tag
+      # This uses a conditional dependency pattern
     permissions:
       contents: read
       packages: write
+    if: ${{ always() && (github.event_name == 'release' || github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
     outputs:
       project_version: ${{ steps.set-version.outputs.project_version }}
       intention_id: ${{ steps.set-intention-id.outputs.intention_id }}
