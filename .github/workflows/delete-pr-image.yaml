@@ -1,0 +1,42 @@
+name: Delete GHCR Package for PR Branch
+
+on:
+  pull_request:
+    types: [closed]  # Only run when PR is closed
+
+jobs:
+  delete-ghcr-package:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.repo.full_name == github.repository # Only run for PRs from same repo
+
+    permissions:
+      packages: write
+
+    steps:
+      - name: Set up branch-based tag
+        id: vars
+        run: |
+          REF_NAME="${{ github.event.pull_request.head.ref }}"
+          SAFE_REF_NAME=$(echo "$REF_NAME" | tr '/' '-')
+          echo "tag=${SAFE_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Delete package version from GHCR
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME: 'package'
+          TAG: ${{ steps.vars.outputs.tag }}
+        run: |
+          # Find matching version ID
+          VERSION_ID=$(gh api -H "Accept: application/vnd.github+json" \
+            /users/$OWNER/packages/container/$PACKAGE_NAME/versions \
+            --paginate | jq -r --arg tag "$TAG" '.[] | select(.metadata.container.tags[]? == $tag) | .id')
+
+          if [ -z "$VERSION_ID" ]; then
+            echo "❌ No version found with tag $TAG"
+            exit 0
+          fi
+
+          echo "🗑 Deleting package version ID: $VERSION_ID"
+          gh api -X DELETE -H "Accept: application/vnd.github+json" \
+            /users/$OWNER/packages/container/$PACKAGE_NAME/versions/$VERSION_ID
