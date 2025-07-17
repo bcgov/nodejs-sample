@@ -9,17 +9,17 @@ export class AppService {
 
   async getHello(): Promise<string> {
     const apitoken = this.configService.get<string>('apitoken');
-    let environment = 'unknown';
+    const environment = this.configService.get<string>('environment');
     let packageVersion = 'unknown';
     let transactionStart = 'unknown';
     let transactionEnd = 'unknown';
     let eventUrl = 'unknown';
-
     try {
       const where = {
         'actions.action': 'package-installation',
         'actions.service.project': PROJECT_NAME,
         'actions.service.name': SERVICE_NAME,
+        'actions.service.environment': environment,
       };
       const params = new URLSearchParams({
         where: JSON.stringify(where),
@@ -42,10 +42,9 @@ export class AppService {
       if (data) {
         // Find the package-installation action
         const pkgInstallAction = data.actions?.find(
-          (a: any) => a.action === 'package-installation'
+          (a: any) => a.action === 'package-installation',
         );
         if (pkgInstallAction) {
-          environment = pkgInstallAction.service?.environment ?? 'unknown';
           packageVersion = pkgInstallAction.package?.version ?? 'unknown';
         }
         // Transaction times
