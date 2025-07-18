@@ -38,19 +38,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    if: |
-      ${{ 
-        always() &&
-        (
-          github.event_name == 'release' ||
-          github.event_name == 'workflow_dispatch' ||
-          github.event_name == 'push' ||
-          github.event_name == 'pull_request'
-        ) &&
-        (
-          !needs.test.result || needs.test.result == 'success'
-        )
-      }}
+    if: ${{ needs.test.result == 'success' }}
     outputs:
       project_version: ${{ steps.set-version.outputs.project_version }}
       intention_id: ${{ steps.set-intention-id.outputs.intention_id }}
