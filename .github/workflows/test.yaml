@@ -2,6 +2,7 @@ name: Test App
 
 on:
   workflow_call:
+  workflow_dispatch:
 
 jobs:
   test-nodejs-sample:
