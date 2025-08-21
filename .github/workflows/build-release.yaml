@@ -22,7 +22,7 @@ env:
 jobs:
   preflight:
     name: Preflight
-    uses: ./.github/reusable/preflight.yaml
+    uses: ./.github/reusable/preflight.yaml@${{ github.ref }}
     permissions: {}
     secrets:
       token: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
