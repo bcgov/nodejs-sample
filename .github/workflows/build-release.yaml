@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.workflow }}@${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -22,7 +22,7 @@ env:
 jobs:
   preflight:
     name: Preflight
-    uses: ./.github/reusable/preflight.yaml@${{ github.ref }}
+    uses: ./.github/reusable/preflight.yaml@main
     permissions: {}
     secrets:
       token: ${{ secrets.broker_jwt_e985d455_b0ff_470b_8731_e004fcfac915 }}
