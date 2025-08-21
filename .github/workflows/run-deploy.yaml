@@ -1,4 +1,4 @@
-name: Deploy pipeline - nodejs-sample
+name: 'Deploy pipeline - nodejs-sample'
 
 on:
   workflow_dispatch:

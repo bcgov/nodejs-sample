@@ -1,4 +1,4 @@
-name: Deploy - nodejs-sample
+name: 'Deploy - nodejs-sample'
 
 on:
   workflow_call:
