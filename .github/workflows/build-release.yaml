@@ -51,7 +51,7 @@ jobs:
             RESPONSE=$(curl -s "https://api.github.com/repos/bcgov/nodejs-sample/pulls?head=bcgov:${{ github.head_ref || github.ref_name }}&state=open&base=main" \
               -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github+json")
-            PULL_REQUEST_NUMBER=$(echo ${RESPONSE} | jq-r .[0].number)
+            PULL_REQUEST_NUMBER=$(echo ${RESPONSE} | jq -r .[0].number)
             echo "checkout_ref=refs/pull/$PULL_REQUEST_NUMBER/merge" >> $GITHUB_OUTPUT
           else
             echo "checkout_ref=${{ github.ref_name }}" >> $GITHUB_OUTPUT
